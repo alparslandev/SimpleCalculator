@@ -3,8 +3,10 @@ package com.simplecalculator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -14,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,17 +49,19 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
         textColor = Color.Black,
         backgroundColor = Color.Transparent
     )
-    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(16.dp)
+    ) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+
         ) {
             OutlinedTextField(
                 value = viewModel.weight,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f),
+                modifier = Modifier.weight(1f),
                 onValueChange = {
                     viewModel.weight = it
                 },
@@ -67,11 +70,11 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
                 placeholder = { Text("Kilo") }
             )
 
+            Spacer(Modifier.weight(0.2f))
+
             OutlinedTextField(
                 value = viewModel.fatPercentage,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f),
+                modifier = Modifier.weight(1f),
                 onValueChange = {
                     viewModel.fatPercentage = it
                 },
@@ -87,9 +90,7 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
         ) {
             OutlinedTextField(
                 value = viewModel.musclePercentage,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f),
+                modifier = Modifier.weight(1f),
                 onValueChange = {
                     viewModel.musclePercentage = it
                 },
@@ -98,11 +99,11 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
                 placeholder = { Text("Kas oranı") }
             )
 
+            Spacer(Modifier.weight(0.2f))
+
             OutlinedTextField(
                 value = viewModel.waterPercentage,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .weight(1f),
+                modifier = Modifier.weight(1f),
                 onValueChange = {
                     viewModel.waterPercentage = it
                 },
@@ -110,9 +111,28 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Number
                 ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        viewModel.calculateFat()
+                    }
+                ),
                 colors = colors,
                 placeholder = { Text("Su oranı") }
             )
+        }
+
+        AnimatedVisibility(visible = viewModel.fatPercentage != "") {
+            viewModel.calculateFat()
+            Text(text = "Yağ : ${viewModel.fatWeight} Kg")
+        }
+
+        AnimatedVisibility(visible = viewModel.musclePercentage != "") {
+            viewModel.calculateMuscle()
+            Text(text = "Kas : ${viewModel.muscleWeight} Kg")
+        }
+        AnimatedVisibility(visible = viewModel.waterPercentage != "") {
+            viewModel.calculateWater()
+            Text(text = "Su : ${viewModel.waterWeight} Kg")
         }
     }
 }
