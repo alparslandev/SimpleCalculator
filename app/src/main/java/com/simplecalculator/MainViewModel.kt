@@ -17,21 +17,16 @@ class MainViewModel : ViewModel() {
     var waterWeight by mutableStateOf("")
 
     fun calculateFat() {
-        fatWeight = (weight.toDouble() * fatPercentage.toDouble() / 100).toString()
+        fatWeight = if (fatPercentage != "") (weightNonZero() * fatPercentage.toDouble() / 100).toString() else ""
     }
 
     fun calculateMuscle() {
-        muscleWeight = (weight.toDouble() * musclePercentage.toDouble() / 100).toString()
+        muscleWeight = if (musclePercentage != "") (weightNonZero() * musclePercentage.toDouble() / 100).toString() else ""
     }
 
     fun calculateWater() {
-        waterWeight = (weight.toDouble() * waterPercentage.toDouble() / 100).toString()
+        waterWeight = if (waterPercentage != "") (weightNonZero() * waterPercentage.toDouble() / 100).toString() else ""
     }
 
-    private fun weightNonZero(): Double {
-        fatWeight = ""
-        muscleWeight = ""
-        waterWeight = ""
-        return if (weight != "") weight.toDouble() else 1.0
-    }
+    private fun weightNonZero() = if (weight != "") weight.toDouble() else 1.0
 }
