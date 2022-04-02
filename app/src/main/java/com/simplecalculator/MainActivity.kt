@@ -1,6 +1,7 @@
 package com.simplecalculator
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -11,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,21 +20,24 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.simplecalculator.storage.DefaultLocalStorageImpl
+import com.simplecalculator.storage.LocalStorage
 import com.simplecalculator.ui.theme.SimpleCalculatorTheme
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_MODE_CHANGED)
+        val mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        mainViewModel.prefs = DefaultLocalStorageImpl(this)
         setContent {
             val scrollState = rememberScrollState()
-            SimpleCalculatorTheme {
-                // A surface container using the 'background' color from the theme
-                Column(
-                    modifier = Modifier.verticalScroll(scrollState)
-                ) {
-                    SimpleCalculatorComponents()
+            MaterialTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    SimpleCalculatorComponents(mainViewModel)
                 }
             }
         }
@@ -40,7 +45,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
+fun SimpleCalculatorComponents(viewModel: MainViewModel) {
     val keyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Next,
         keyboardType = KeyboardType.Number
@@ -56,9 +61,8 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
-
-        ) {
+            modifier = Modifier.fillMaxWidth()
+            ) {
             OutlinedTextField(
                 value = viewModel.weight,
                 modifier = Modifier.weight(1f),
@@ -113,7 +117,7 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        viewModel.calculateFat()
+                        viewModel.insertWeight()
                     }
                 ),
                 colors = colors,
@@ -134,6 +138,10 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
             viewModel.calculateWater()
             Text(text = "Su : ${viewModel.waterWeight} Kg")
         }
+
+        AnimatedVisibility(visible = viewModel.fetchWeights().isNullOrEmpty().not()) {
+            Text(text = "var la var oldu la oldu")
+        }
     }
 }
 
@@ -141,6 +149,6 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel = viewModel()) {
 @Composable
 fun DefaultPreview() {
     SimpleCalculatorTheme {
-        SimpleCalculatorComponents()
+        //SimpleCalculatorComponents()
     }
 }
