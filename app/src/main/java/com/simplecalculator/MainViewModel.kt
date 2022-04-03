@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter
 
 class MainViewModel() : ViewModel() {
 
+    var date by mutableStateOf("")
     var weight by mutableStateOf("")
     var fatPercentage by mutableStateOf("")
     var musclePercentage by mutableStateOf("")
@@ -45,7 +46,7 @@ class MainViewModel() : ViewModel() {
                 water = weightNonZero() * waterPercentage.toDouble() / 100,
                 fat = weightNonZero() * fatPercentage.toDouble() / 100,
                 weight = weightNonZero(),
-                date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM")).toString()
+                date = date
             )
         )
         fetchWeights()
