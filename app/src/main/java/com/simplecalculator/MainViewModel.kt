@@ -8,8 +8,8 @@ import com.simplecalculator.storage.Constants
 import com.simplecalculator.storage.LocalStorage
 import java.math.RoundingMode
 import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainViewModel() : ViewModel() {
 
@@ -21,7 +21,7 @@ class MainViewModel() : ViewModel() {
     var fatWeight by mutableStateOf("")
     var muscleWeight by mutableStateOf("")
     var waterWeight by mutableStateOf("")
-    private val weights = MutableLiveData<List<Weight>>()
+    var weights by mutableStateOf(ArrayList<Weight>())
 
     private val df = DecimalFormat("#,###.##")
     lateinit var prefs: LocalStorage
@@ -30,44 +30,41 @@ class MainViewModel() : ViewModel() {
         df.roundingMode = RoundingMode.CEILING
     }
 
-    fun fetchWeights() = prefs.getList<List<Weight>>(Constants.LOCAL_STORAGE_WEIGHTS)
+    fun fetchWeights(): ArrayList<Weight> {
+       prefs.getList(Constants.LOCAL_STORAGE_WEIGHTS)?.let {
+           weights = it
+       }
+       return weights
+    }
 
     fun insertWeight() {
         prefs.storeToList(
             Constants.LOCAL_STORAGE_WEIGHTS,
             Weight(
-                muscle = weightNonZero() * musclePercentage.toDoubleEx() / 100,
-                water = weightNonZero() * waterPercentage.toDoubleEx() / 100,
-                fat = weightNonZero() * fatPercentage.toDoubleEx() / 100,
+                muscle = weightNonZero() * musclePercentage.toDouble() / 100,
+                water = weightNonZero() * waterPercentage.toDouble() / 100,
+                fat = weightNonZero() * fatPercentage.toDouble() / 100,
                 weight = weightNonZero(),
-                date = Date().toString()
+                date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM")).toString()
             )
         )
+        fetchWeights()
     }
 
     fun calculateFat() {
         fatWeight =
-            if (fatPercentage != "") df.format(weightNonZero() * fatPercentage.toDoubleEx() / 100) else ""
+            if (fatPercentage != "") df.format(weightNonZero() * fatPercentage.toDouble() / 100) else ""
     }
 
     fun calculateMuscle() {
         muscleWeight =
-            if (musclePercentage != "") df.format(weightNonZero() * musclePercentage.toDoubleEx() / 100) else ""
+            if (musclePercentage != "") df.format(weightNonZero() * musclePercentage.toDouble() / 100) else ""
     }
 
     fun calculateWater() {
         waterWeight =
-            if (waterPercentage != "") df.format(weightNonZero() * waterPercentage.toDoubleEx() / 100) else ""
+            if (waterPercentage != "") df.format(weightNonZero() * waterPercentage.toDouble() / 100) else ""
     }
 
-    private fun weightNonZero() = if (weight != "") weight.toDoubleEx() else 1.0
-}
-
-fun String.toDoubleEx() : Double {
-    val decimalSymbol = DecimalFormatSymbols.getInstance().decimalSeparator
-    return if (decimalSymbol == ',') {
-        this.replace(decimalSymbol, '.').toDouble()
-    } else {
-        this.toDouble()
-    }
+    private fun weightNonZero() = if (weight != "") weight.toDouble() else 1.0
 }

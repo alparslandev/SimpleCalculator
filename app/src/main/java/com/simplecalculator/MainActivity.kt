@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +27,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simplecalculator.storage.DefaultLocalStorageImpl
 import com.simplecalculator.storage.LocalStorage
 import com.simplecalculator.ui.theme.SimpleCalculatorTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
 
@@ -62,7 +66,7 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
-            ) {
+        ) {
             OutlinedTextField(
                 value = viewModel.weight,
                 modifier = Modifier.weight(1f),
@@ -139,8 +143,27 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel) {
             Text(text = "Su : ${viewModel.waterWeight} Kg")
         }
 
-        AnimatedVisibility(visible = viewModel.fetchWeights().isNullOrEmpty().not()) {
-            Text(text = "var la var oldu la oldu")
+        viewModel.fetchWeights()
+        AnimatedVisibility(visible = viewModel.weights.isEmpty().not()) {
+            LazyColumn(contentPadding = PaddingValues(vertical = 16.dp)) {
+                items(
+                    items = viewModel.weights,
+                    itemContent = {
+                        WeightItem(weight = it)
+                    })
+            }
+        }
+    }
+}
+
+@Composable
+fun WeightItem(weight: Weight) {
+    Column {
+        Row {
+            Text(text = "${weight.date} - ${weight.weight} Kg")
+        }
+        Row {
+            Text(text = "Yağ: ${weight.fat} kg, Su: ${weight.water} kg, Kas: ${weight.muscle} kg")
         }
     }
 }
