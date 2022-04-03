@@ -12,10 +12,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
@@ -24,10 +22,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simplecalculator.storage.DefaultLocalStorageImpl
-import com.simplecalculator.storage.LocalStorage
 import com.simplecalculator.ui.theme.SimpleCalculatorTheme
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -153,12 +151,14 @@ fun SimpleCalculatorComponents(viewModel: MainViewModel) {
 
 @Composable
 fun WeightItem(weight: Weight) {
+    val df = DecimalFormat("#,###.##")
+    df.roundingMode = RoundingMode.CEILING
     Column {
         Row {
             Text(text = "${weight.date} - ${weight.weight} Kg")
         }
         Row {
-            Text(text = "Yağ: ${weight.fat} kg, Su: ${weight.water} kg, Kas: ${weight.muscle} kg")
+            Text(text = "Yağ: ${df.format(weight.fat)} kg, Su: ${df.format(weight.water)} kg, Kas: ${df.format(weight.muscle)} kg")
         }
     }
 }
