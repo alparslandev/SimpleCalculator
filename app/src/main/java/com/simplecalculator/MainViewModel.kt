@@ -29,6 +29,7 @@ class MainViewModel() : ViewModel() {
 
     init {
         df.roundingMode = RoundingMode.CEILING
+        date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd MMMM")).toString()
     }
 
     fun fetchWeights(): ArrayList<Weight> {
