@@ -1,5 +1,7 @@
 package com.simplecalculator.storage
 
+import com.simplecalculator.Weight
+
 interface LocalStorage {
 
     /**
@@ -92,7 +94,7 @@ interface LocalStorage {
      * @param key
      * @return Object T
      */
-    fun <T> getList(key: String): List<T>?
+    fun getList(key: String): ArrayList<Weight>?
 
     /**
      * Get long

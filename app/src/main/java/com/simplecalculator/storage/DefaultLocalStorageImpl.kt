@@ -7,6 +7,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.gson.reflect.TypeToken
 import com.simplecalculator.GsonUtils
+import com.simplecalculator.Weight
 import java.lang.reflect.Type
 
 class DefaultLocalStorageImpl(appContext: Context) : LocalStorage {
@@ -32,14 +33,13 @@ class DefaultLocalStorageImpl(appContext: Context) : LocalStorage {
     }
 
     override fun <T> storeToList(key: String, value: T) {
-        getList<List<T>>(key)?.let {
-            val list = ArrayList(it[0]).apply { add(value) }
-            sharedPreferences
-                .edit()
-                .putString(key, GsonUtils.toJson(list))
-                .apply()
+        sharedPreferences.getString(key, "")?.let { json ->
+           GsonUtils.gson.fromJson<ArrayList<T>>(json, object : TypeToken<ArrayList<T>>() {}.type)?.let { tList ->
+               tList.add(value)
+               storeList(key, tList)
+           }
         } ?: run {
-            storeList<T>(key, listOf(value))
+            storeList(key, arrayListOf(value))
         }
     }
 
@@ -84,9 +84,9 @@ class DefaultLocalStorageImpl(appContext: Context) : LocalStorage {
         }
     }
 
-    override fun <T> getList(key: String): List<T>? {
-        return sharedPreferences.getString(key, "")?.let {
-            GsonUtils.gson.fromJson(it, object : TypeToken<List<T>>() {}.type)
+    override fun getList(key: String): ArrayList<Weight>? {
+        return sharedPreferences.getString(key, null)?.let {
+            GsonUtils.gson.fromJson(it, object : TypeToken<ArrayList<Weight>>() {}.type)
         }
     }
 
